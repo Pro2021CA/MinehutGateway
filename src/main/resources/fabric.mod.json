@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "randomjoin",
+  "version": "${version}",
+  "name": "MinehutGateway",
+  "description": "",
+  "authors": ["Pro2021CA"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/randomjoin/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.Pro2021CA.randomjoin.client.RandomjoinClient"
+    ],
+    "main": [
+      "me.Pro2021CA.randomjoin.Randomjoin"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
