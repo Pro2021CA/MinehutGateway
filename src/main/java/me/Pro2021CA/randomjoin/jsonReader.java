@@ -1,8 +1,13 @@
 package me.Pro2021CA.randomjoin;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
+import net.minecraft.world.InteractionHand;
 
 import java.io.*;
 import java.net.URL;
@@ -41,6 +46,34 @@ public class jsonReader {
         for (int i = 0; i < array.size(); i++) {
             JsonObject serverObj = array.get(i).getAsJsonObject();
             servers.add(serverObj.get("name").getAsString());
+        }
+
+        return servers;
+    }
+
+    public static List<String> getMinekeepServers(String url, String keyword) throws IOException {
+        JsonObject json = readJsonFromUrl(url);
+
+        List<String> servers = new ArrayList<>();
+
+        JsonArray array = json.getAsJsonArray("servers");
+
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject serverObj = array.get(i).getAsJsonObject();
+            System.out.println(serverObj);
+            if(serverObj.get("name").getAsString().toLowerCase().contains(keyword.toLowerCase())){
+                servers.add(serverObj.get("name").getAsString());
+            }else{
+                if(serverObj.get("ad").getClass().equals(JsonNull.class)){
+                    continue;
+                }
+                JsonArray ad = serverObj.getAsJsonArray("ad");
+                for (int j = 0; j < ad.size(); j++){
+                    if(ad.get(j).getAsString().toLowerCase().contains(keyword.toLowerCase())){
+                        servers.add(serverObj.get("name").getAsString());
+                    }
+                }
+            }
         }
 
         return servers;

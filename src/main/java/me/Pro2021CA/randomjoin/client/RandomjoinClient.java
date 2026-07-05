@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static me.Pro2021CA.randomjoin.jsonReader.getMinekeepServers;
 import static me.Pro2021CA.randomjoin.jsonReader.getServers;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
@@ -67,25 +68,31 @@ public class RandomjoinClient implements ClientModInitializer {
         ClientCommandRegistrationCallback.EVENT.register(((commandDispatcher, commandRegistryAccess) -> {
             LiteralCommandNode<FabricClientCommandSource> register = commandDispatcher.register(
                     literal("getservers")
-                            .then(argument("search", StringArgumentType.string()).executes(commandContext -> {
-                                String search = StringArgumentType.getString(commandContext, "search");
-                                Minecraft client = Minecraft.getInstance();
-                                servers = new ArrayList<>();
-                                try {
-                                    servers = getServers("https://api.minehut.com/servers?q=" + search);
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                if(servers.isEmpty()){
-                                    client.player.displayClientMessage(Component.literal("No servers found!"), false);
-                                    return 0;
-                                }
-                                renderGui.page = 1;
-                                client.schedule(() -> {
-                                    client.setScreen(new renderGui(Component.empty()));
-                                });
-                                return 1;
-                            })));
+                            .then(argument("search", StringArgumentType.string())
+                                    .then(argument("server", StringArgumentType.string()).executes(commandContext -> {
+                                        String server = StringArgumentType.getString(commandContext, "server");
+                                        String search = StringArgumentType.getString(commandContext, "search");
+                                        Minecraft client = Minecraft.getInstance();
+                                        servers = new ArrayList<>();
+                                        try {
+                                            if(server.equals("minehut")){
+                                                servers = getServers("https://api.minehut.com/servers?q=" + search);
+                                            }else if(server.equals("minekeep")){
+                                                servers = getMinekeepServers("https://api.minekeep.net/v1/servers", search);
+                                            }
+                                        } catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                        if(servers.isEmpty()){
+                                            client.player.displayClientMessage(Component.literal("No servers found!"), false);
+                                            return 0;
+                                        }
+                                        renderGui.page = 1;
+                                        client.schedule(() -> {
+                                            client.setScreen(new renderGui(Component.empty()));
+                                        });
+                                        return 1;
+                            }))));
 
         }));
     }
